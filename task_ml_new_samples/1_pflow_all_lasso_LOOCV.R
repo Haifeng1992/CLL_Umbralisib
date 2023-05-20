@@ -3,8 +3,6 @@ library(smotefamily)
 setwd("/Users/xuhaifeng/Documents/PhD_project_1/scripts/")
 source("my_function.r")
 initialization()
-setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/processed_data_HX/")
-old_pflow = readRDS("pflow_for_ml.rds")
 setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023")
 pflow = readRDS("baseline_pflow_all_cleaned.rds")
 pflow[,3:ncol(pflow)] = apply(pflow[,3:ncol(pflow)], 2, as.numeric)
@@ -68,14 +66,6 @@ for (i in 1:nrow(pflow)) {
   result = as.numeric(result)
   
   results[i,1] = result
-  
-  #calculate average mse for this fold
-  mse = cbind(as.data.frame(result), as.data.frame(as.numeric(as.character(y.test))))
-  temp_c = as.data.frame(matrix(0,nrow(mse),1))
-  mse = cbind(mse, temp_c)
-  for (j in 1:nrow(mse)) {
-    mse[j,3] = (mse[j,1] - mse[j,2])^2
-  }
 }
 
 labels_all = pflow$labels
@@ -146,10 +136,3 @@ axis(side = 2,
 GeneList = unlist(GeneList)
 GeneList = as.data.frame(table(GeneList))
 genes = as.character(GeneList[GeneList$Freq>10,1])
-
-#the_cutoff
-precision =  CM$byClass[6] #this function has some problem so the recall is actually precision
-recall =  CM$byClass[5] #this function has some problem so the recall is actually precision
-f1 = 2*precision*recall/(precision+recall)
-f1
-
