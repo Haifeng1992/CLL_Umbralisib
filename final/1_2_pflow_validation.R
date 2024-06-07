@@ -1,0 +1,113 @@
+##### Run this script from here #####
+library(smotefamily)
+setwd("/Users/xuhaifeng/Documents/PhD_project_1/scripts/")
+source("my_function.r")
+initialization()
+setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/processed_data_HX/")
+old_pflow = readRDS("pflow_for_ml.rds")
+setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023")
+pflow = readRDS("baseline_pflow_all_cleaned.rds")
+pflow[,3:ncol(pflow)] = apply(pflow[,3:ncol(pflow)], 2, as.numeric)
+
+## classify CR into PR together as responder
+pflow$labels[pflow$labels == "responder (CR)"] = "responder"
+new_res = c("PHA0210", "NYA0206")
+res = pflow[pflow$labels == "responder",]
+old_res = res$ids
+res = c(old_res, new_res)
+#res = old_res
+res = pflow[is.element(pflow$ids, res),]
+res$labels = "responder"
+
+new_non_responder = pflow$ids[is.element(pflow$ids, res$ids) == FALSE]
+non_res = pflow[is.element(pflow$ids, new_non_responder),]
+non_res$labels = "non_responder"
+non_res = non_res[non_res$ids!="NYA0204",] #remove the sample with no clear info
+pflow = rbind(res, non_res)
+
+vali_set = read.csv2("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023/validation/pflow_jenifer_brown.csv")
+cols = c(2,4,6,8,10,12,14,16,18,20,22,24)
+rownames(vali_set) = vali_set$X
+vali_set = vali_set[, cols]
+vali_set = vali_set[1:32, ] # remove the unrelated protein according to Yanping's answer
+
+vali_set = t(vali_set)
+vali_set = vali_set[,2:ncol(vali_set)]
+is.element(colnames(vali_set), colnames(pflow))
+vali_set = vali_set[,c(1,3:31)]
+is.element(colnames(vali_set), colnames(pflow))
+
+y.train = pflow$labels
+y.train = as.character(y.train)
+y.train[y.train == "non_responder"] = 0
+y.train[y.train == "responder"] = 1
+y.train = as.numeric(y.train)
+y.train = factor(y.train, levels = c(0,1))
+
+x.train = pflow[, 3:ncol(pflow)]
+
+
+cv_output <- cv.glmnet(x = as.matrix(x.train), y = as.factor(y.train), nfolds = 5,
+                       alpha = 1, family = "binomial", type.measure="mse")
+plot(cv_output)
+#coef(cv_output)
+model= glmnet(x = as.matrix(x.train), y = as.matrix(as.factor(y.train)), 
+              alpha = 1, family = "binomial", type.measure="mse")
+
+#get the common genes
+betaGene = model$beta[,model$lambda==cv_output$lambda.min]
+betaGene = betaGene[betaGene != 0]
+betaGene = as.data.frame(betaGene)
+betaGene
+#GeneList[[i]] = rownames(betaGene)
+
+result = predict(model, vali_set, type = "response", s=cv_output$lambda.min)
+#label_result = predict(model, as.matrix(x.test),type = "class",  s=cv_output$lambda.min)
+result = as.numeric(result)
+result
+
+result
+#setwd("/Users/xuhaifeng/Documents/PhD_project_4/results/2024_final/")
+#saveRDS(result, "jenifer_prediction.rds")
+## read training data prediction loocv
+tg_results = readRDS("/Users/xuhaifeng/Documents/PhD_project_4/results/2024_final/final_prediction_results.rds")
+results_tg_res = tg_results[1:15]
+results_tg_nres = tg_results[16:55]
+
+#write.csv(result, "jenifer_prediction.csv")
+#write.csv(results_tg_res, "result_tg_res.csv")
+#write.csv(results_tg_nres, "result_tg_nonres.csv")
+
+wilcox.test(result, results_tg_res)
+wilcox.test(result, results_tg_nres)
+wilcox.test(results_tg_res, results_tg_nres)
+
+r_list = list()
+r_list[[3]] = result
+r_list[[2]] = results_tg_res
+r_list[[1]] = results_tg_nres
+names(r_list) = c("Non Responder (training)", "Responder (training)", "Responder (validation)")
+
+
+
+temp = plyr::ldply(r_list, cbind)
+colnames(temp) = c("cohort", "value")
+ggplot(temp, aes(x=cohort, y=value, color = cohort)) + 
+  geom_violin() + 
+  geom_jitter(size = 2, aes(colour = cohort)) + 
+  scale_colour_manual(values = c("#228B22" ,"#007dff", "purple"), labels=c("Non-responder (training)","Responder (training)","Responder (test)")) +
+  #labs(x = NULL) +
+  theme(text=element_text(size=18),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        #legend.title = element_blank(), 
+        #legend.text = element_text(size=18), 
+        legend.position = "none",
+        axis.text = element_text(size = 20),
+        #axis.text.x=element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black")) +
+  labs(x = "", y="predicted probabilities") +
+  scale_x_discrete(labels=c("NR\n(training)","R\n(training)","R\n(test)")) +
+  geom_hline(yintercept = 0.273, lty="dashed") 
+
