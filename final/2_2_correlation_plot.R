@@ -192,6 +192,7 @@ colnames(dss)[colnames(dss) == "Copanlisib+Venetoclax"] = "Venetoclax+Copanlisib
 colnames(pflow_pure)[colnames(pflow_pure) == "S6-ribosomal protein (pS235/236)"] = "S6-rib. prot. (pS235/236)"
 
 library("grDevices")
+stats_these = stats_these[order(stats_these$pflow_list, stats_these$dss_list),]
 for (i in 1:12) {
   this_cor = stats_these[i,3]
   this_p = stats_these[i,4]
@@ -224,12 +225,14 @@ for (i in 1:12) {
               xlab= paste(this_dss, "(DSS)"),
               ylab = paste(this_pflow,"\n" ,"(Arcsinh ratio)"),
               palette = c("#91C0F9", "#097F98", "#F2B77C")) + 
-    theme(axis.text=element_text(size=18),
+    theme(title=element_text(size=35),
+          axis.text=element_text(size=35),
           legend.position = "none",
-          title=element_text(size=15),
-          axis.title=element_text(size=18)) +
-    font("legend.title", size = 15, face = "bold") +
-    font("legend.text",  size = 15) 
+          #axis.title=element_text(size=15),
+          axis.title=element_blank()
+          ) +
+    font("legend.title", size = 25, face = "bold") +
+    font("legend.text",  size = 25) 
   
 }
 plot_list[1] 
@@ -244,3 +247,8 @@ plot_list[9]
 plot_list[10] 
 plot_list[11] 
 plot_list[12] 
+
+ggarrange(plotlist = plot_list,
+          
+          #labels = c("A", "B", "C"),
+          ncol = 3, nrow = 4)
