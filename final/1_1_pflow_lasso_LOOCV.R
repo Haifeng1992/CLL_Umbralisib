@@ -1,7 +1,9 @@
 ##### Run this script from here #####
 library(smotefamily)
-setwd("/Users/xuhaifeng/Documents/PhD_project_1/scripts/")
-source("my_function.r")
+#setwd("/Users/xuhaifeng/Documents/PhD_project_1/scripts/")
+#source("my_function.r")
+setwd("final/1_1_pflow_lasso_LOOCV.R")
+source(".../CLL_Umbralisib/final/my_function.r")
 initialization() #load required packages
 setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023")
 pflow = readRDS("baseline_pflow_all_cleaned.rds")
