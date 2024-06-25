@@ -3,7 +3,7 @@ source("scripts/my_function.r")
 initialization() #load required packages
 
 # Due to the ethical policy, the data is not shared here,
-# but if can be required from the coresspoding author, Sigrid S Skåland via: sigrid.skanland@ous-research.no
+# but it can be required from the corresponding author Sigrid S Skåland: sigrid.skanland@ous-research.no
 # The data contains 56 samples as rows, including 15 responders, 40 non-responders, and 1 sample with no clear information; 
 # and it has 32 columns, including the IDs, labels (treatment response), and 30 (phospho) proteins
 
@@ -115,7 +115,6 @@ dat.ci <- data.frame(x = as.numeric(rownames(ciobj)),
                      lower = ciobj[, 1],
                      upper = ciobj[, 3])
 this_auc = paste("AU-ROC =", format(round(pROC::auc(roc),2),nsmall = 2))
-#this_auc = paste("AU-ROC =", round(pROC::auc(roc),2))
 p = ggroc(roc, colour = "black") + 
   scale_x_continuous(breaks = seq(0, 1, 0.2), trans = "reverse", name = "1 - Specificity") +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
@@ -158,18 +157,20 @@ labels_all = factor(as.character(labels_all), levels = c(0,1), ordered = TRUE)
 CM = confusionMatrix(data = class_results, reference = labels_all, positive = "1")
 CM
 
-### Draw PR curves with CI, the codes were edited based on yogiroc: https://github.com/jweile/yogiroc
+### Draw PR curves with CI
+# The codes were edited based on yogiroc: https://github.com/jweile/yogiroc
+# Given that yogiroc needs to be edited for CI drawing, the original package was not used.
+# Insteadm the original codes of yogiroc were copied to a local file for further editing
+source("/scripts/original_yogi_functions.r") 
 #library("yogiroc")
 
-source("~/Documents/PhD_project_4/scripts/Original_yogi_functions.r")
-results = results
+#results = results
 pr_label = vector(mode = "logical", length = length(labels_all))
 for (pr_i in 1:length(labels_all)) {
   if(labels_all[pr_i] == 1){
     pr_label[pr_i] = TRUE
   }
 }
-
 TrueData = cbind.data.frame(
   pr_label, results, results
 )

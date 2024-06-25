@@ -1,26 +1,29 @@
 # initialization 
 library("clValid")
-setwd("/Users/xuhaifeng/Documents/PhD_project_1/scripts/")
-source("my_function.r")
-initialization()
 library(ggfortify)
+library(FeatureImpCluster)
+library(flexclust)
+source("scripts/my_function.r")
+initialization() #load required packages
+
+# Due to the ethical policy, the training data is not shared here,
+# but it can be required from the corresponding author Sigrid S Skåland: sigrid.skanland@ous-research.no
+# The data is a list consisting 2 elements, while the first element is the DSS values, and the second it the treatment response
+# The "df" object is data frame with 31 samples as rows, including 10 responders, 20 non-responders, and 1 sample with no clear information; 
+# and it has 182 colums, including the treatment response as the 1st column, and the DSS of 181 drug/drug combinations as the rest columns.
+
 setwd("/Users/xuhaifeng/Documents/PhD_project_4/projects_2024/dss_2024/data")
 data = readRDS("dss_cleaned_data.rds")
 df = cbind(as.character(data[[2]]), data[[1]])
-library(FeatureImpCluster)
-library(flexclust)
 
-df = cbind(as.character(data[[2]]), data[[1]])
 # select only non-responder data
-set.seed(10)
+set.seed(10) # Random seed is VERY important to k-means clustering, do not change here
 non_res = df[df$`as.character(data[[2]])`== "SD" | df$`as.character(data[[2]])` == "PD",]
-#temp5 = df$`as.character(data[[2]])`
 non_res = non_res[, 2:ncol(non_res)]
 non_res[1, 1]
-
 res_2 <- flexclust::kcca(non_res,k=2, family=kccaFamily("kmeans"))
-set.seed(10) # Random seed is VERY important to k-means clustering, do not change here
 
+set.seed(10) # Random seed is VERY important to k-means clustering, do not change here
 FeatureImp_res <- FeatureImpCluster(res_2,as.data.table(non_res), biter = 5)
 #View(FeatureImp_res$featureImp)
 temp = FeatureImp_res$misClassRate
@@ -63,7 +66,7 @@ library("factoextra")
 res.km_all <- kmeans(scale(non_res), 2)
 # Note that cluster 1 and cluster 2 are just names so they can be opposite in different tests
 # the important thing is that the same patients are clustered into the same groups.
-# So one can switch them for better illustration, but here it is not swicthed
+# So one can switch them for better illustration, but here it is not switched
 #res.km_all$cluster[res.km_all$cluster == 1] = 99 
 #res.km_all$cluster[res.km_all$cluster == 2] = 1
 #res.km_all$cluster[res.km_all$cluster == 99] = 2
@@ -107,13 +110,6 @@ rownames(selected_matrix) = rownames(non_res)
 colnames(selected_matrix) = gsub("BGB-11417", "Sonrotoclax", colnames(selected_matrix))
 colnames(selected_matrix)[colnames(selected_matrix) == "Copanlisib+Venetoclax"] = "Venetoclax+Copanlisib"
 
-#lgd = Legend(labels_gp = gpar(col = "red", fontsize = 16), title_gp = gpar(col = "red", fontsize = 14))
-
-#group = kmeans(t(mat), centers = 3)$cluster
-#group = res_2@cluster
-#Heatmap(selected_matrix, name = "selected_matrix", cluster_rows = cluster_within_group(selected_matrix, group))
-#cluserting_results[cluserting_results == "1"] = 3
-#selected_matrix = t(selected_matrix)
 Heatmap(selected_matrix,
         name = "DSS", 
         #right_annotation = ha, 
@@ -220,7 +216,6 @@ colnames(dat_f) = c("BGB-11417\n+Copanlisib",
                     "BGB-11417\n+Duvelisib", 
                     "Venetoclax\n+ZSTK474",
                     "cluster")
-setwd("/Users/xuhaifeng/Documents/PhD_project_4/manuscript")
 #write.csv(dat_f, "dss_cluster_boxplot.csv")
 dat_m = melt(dat_f)
 
