@@ -14,7 +14,7 @@ This is for testing the selected proteins in 1_1 on an independent test set. Giv
 This is an unsupervised clustering within the non-responders using the k-means algorithm and DSS data, in order to explore potential treatment options for those who are likely not to respond to umbralisib.
 
 **2_2_correlation_plot.R**: 
-This is for exploring the correlation between (phospho) proteins and the selected drug combinations in 2_1.
+This is for exploring the correlations between (phospho) proteins and the selected drug combinations in 2_1.
 
 **my_function.r**: 
 Personal function for build the coding environment, such as loading required packages.
