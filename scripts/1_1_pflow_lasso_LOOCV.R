@@ -1,14 +1,19 @@
 ##### Run this script from here #####
-source("final/my_function.r")
+source("scripts/my_function.r")
 initialization() #load required packages
 
-setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023")
+# Due to the ethical policy, the data is not shared here,
+# but if can be required from the coresspoding author, Sigrid S Skåland via: sigrid.skanland@ous-research.no
+# The data contains 56 samples as rows, including 15 responders, 40 non-responders, and 1 sample with no clear information; 
+# and it has 32 columns, including the IDs, labels (treatment response), and 30 (phospho) proteins
+
+setwd("/data folder path") # insert your data path here
 pflow = readRDS("baseline_pflow_all_cleaned.rds")
 pflow[,3:ncol(pflow)] = apply(pflow[,3:ncol(pflow)], 2, as.numeric)
 
+### Pre-processing
 # Classify CR and PR together as responders
 pflow$labels[pflow$labels == "responder (CR)"] = "responder"
-
 # Add new responders based on literature
 new_res = c("PHA0210", "NYA0206")
 res = pflow[pflow$labels == "responder",]
@@ -16,11 +21,11 @@ old_res = res$ids
 res = c(old_res, new_res)
 res = pflow[is.element(pflow$ids, res),]
 res$labels = "responder"
-
+# Remove the sample with no clear info
 new_non_responder = pflow$ids[is.element(pflow$ids, res$ids) == FALSE]
 non_res = pflow[is.element(pflow$ids, new_non_responder),]
 non_res$labels = "non_responder"
-non_res = non_res[non_res$ids!="NYA0204",] #remove the sample with no clear info
+non_res = non_res[non_res$ids!="NYA0204",] 
 pflow = rbind(res, non_res)
 
 ### Leave-one-out cross-validation
@@ -28,7 +33,6 @@ pflow = rbind(res, non_res)
 results = matrix(0,nrow(pflow), 1)
 ProteinList = list()
 rownames(pflow) = c(1:55)
-
 set.seed(100)
 par(mfrow=c(1,1))
 
@@ -75,7 +79,7 @@ for (i in 1:nrow(pflow)) {
                 alpha = 1, family = "binomial", type.measure="mse")
                 #, lambda=cv_output$lambda.min)
   
-  #get the selected proteins
+  # Get the selected proteins
   betaGene = model$beta[,model$lambda==cv_output$lambda.min]
   betaGene = betaGene[betaGene != 0]
   betaGene = as.data.frame(betaGene)
@@ -88,6 +92,7 @@ for (i in 1:nrow(pflow)) {
   results[i,1] = result
 }
 
+# Get the selected proteins
 ProteinList = unlist(ProteinList)
 ProteinList = as.data.frame(table(ProteinList))
 rownames(ProteinList) = ProteinList$ProteinList
@@ -96,12 +101,12 @@ ProteinList = ProteinList[order(ProteinList$Freq, decreasing= TRUE), ]
 proteins = as.character(ProteinList[ProteinList$Freq>10,1])
 proteins
 
+# Draw ROC-curve with CI
 labels_all = pflow$labels
 labels_all[labels_all == "non_responder"] = 0
 labels_all[labels_all == "responder"] = 1
 labels_all = as.numeric(labels_all)
 results = as.numeric(results)
-
 roc = roc(response = labels_all, predictor = results, direction = "<",ci=TRUE)
 library("verification")
 roc.area(labels_all, results)
@@ -143,7 +148,7 @@ p = p+ theme(axis.text=element_text(size=23),
 p
 
 
-## cutoff based metrics
+## Calculate cutoff based metrics
 class_results = results
 frac = nrow(res)/nrow(pflow)
 class_results[class_results>=frac] = 1
@@ -153,10 +158,11 @@ labels_all = factor(as.character(labels_all), levels = c(0,1), ordered = TRUE)
 CM = confusionMatrix(data = class_results, reference = labels_all, positive = "1")
 CM
 
-### PR curves
-library("yogiroc")
-results = results
+### Draw PR curves with CI, the codes were edited based on yogiroc: https://github.com/jweile/yogiroc
+#library("yogiroc")
 
+source("~/Documents/PhD_project_4/scripts/Original_yogi_functions.r")
+results = results
 pr_label = vector(mode = "logical", length = length(labels_all))
 for (pr_i in 1:length(labels_all)) {
   if(labels_all[pr_i] == 1){
@@ -169,9 +175,6 @@ TrueData = cbind.data.frame(
 )
 
 # Create yogiroc2 object
-# This is an edited version of yogiroc: https://github.com/jweile/yogiroc
-
-source("~/Documents/PhD_project_4/scripts/temp_yogi.r")
 predictions_tg = as.matrix(results)
 colnames(predictions_tg) = "prediction"
 yrobj <- yr2(truth=TrueData$pr_label, scores=predictions_tg,names = "")
