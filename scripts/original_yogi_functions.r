@@ -1,4 +1,7 @@
-
+# This is the original codes from the package "yogiroc": 
+# https://github.com/jweile/yogiroc. 
+# Given that I need to edit it for better illustrations, 
+# the original codes were copied and sourced here.
 
 #' confidence interval for precision or recall
 #'
