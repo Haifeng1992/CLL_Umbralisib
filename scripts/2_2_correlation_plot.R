@@ -24,20 +24,17 @@ colnames(df2) = c("BGB-11417+Copanlisib", "Copanlisib+Venetoclax",
                   "BGB-11417+Duvelisib", "Venetoclax+ZSTK474")
 rownames(df2) = rownames(df)
 
+## read pFLOW data, both training cohort and test cohort
 setwd("/data folder path") # insert your data path here
-
-# This is the same data with "baseline_pflow_all_cleaned.rds" in "1_1_pflow_lasso_LOOCV.R"
-# but with the pre-possessing in that script finished
-
-pflow = readRDS("new_pflow_data_55.rds") 
+pflow = readRDS("new_pflow_data_55.rds")
 rownames(pflow) = pflow$ids
 length(intersect(rownames(pflow), rownames(df2)))
 common_ids = intersect(rownames(pflow), rownames(df2))
 pflow = pflow[common_ids,]
-
 vali_set = readRDS("pflow_jenifer_brown.rds") 
 
-dss_vali = read.csv2("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2024/DSS_JBrown_common_samples_new.csv")
+## read DSS Data
+dss_vali = read.csv2("DSS_JBrown_common_samples_new.csv")
 dss_vali = t(dss_vali)
 colnames(dss_vali) = dss_vali[1,]
 dss_vali = dss_vali[-1,]
@@ -47,6 +44,7 @@ rownames(dss_vali) = dss_vali$id
 dss_vali = dss_vali[,3:ncol(dss_vali)]
 dss_vali = apply(dss_vali, 2, as.numeric)
 
+# Manually remove unmatched samples as there are only two
 vali_set = vali_set[-3,]
 vali_set = vali_set[-7,]
 dss_vali = as.data.frame(dss_vali)
