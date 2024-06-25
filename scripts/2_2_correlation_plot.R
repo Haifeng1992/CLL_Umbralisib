@@ -1,16 +1,21 @@
 #### correlation
-#install.packages("clValid")
-# initialization 
 library("clValid")
-setwd("/Users/xuhaifeng/Documents/PhD_project_1/scripts/")
-source("my_function.r")
-initialization()
 library(ggfortify)
-setwd("/Users/xuhaifeng/Documents/PhD_project_4/projects_2024/dss_2024/data")
-data = readRDS("dss_cleaned_data.rds")
-df = cbind(as.character(data[[2]]), data[[1]])
 library(FeatureImpCluster)
 library(flexclust)
+source("scripts/my_function.r")
+initialization() #load required packages
+
+# Due to the ethical policy, the training data is not shared here,
+# but it can be required from the corresponding author Sigrid S Skåland: sigrid.skanland@ous-research.no
+# The data is a list consisting 2 elements, while the first element is the DSS values, and the second it the treatment response
+# The "df" object is data frame with 31 samples as rows, including 10 responders, 20 non-responders, and 1 sample with no clear information; 
+# and it has 182 colums, including the treatment response as the 1st column, and the DSS of 181 drug/drug combinations as the rest columns.
+setwd("/data folder path") # insert your data path here
+data = readRDS("dss_cleaned_data.rds")
+df = cbind(as.character(data[[2]]), data[[1]])
+
+# Select only the four pi3k+bcl inhibitors for correlation calculation
 df2 = cbind(df$`BGB-11417+Copanlisib`, 
             df$`Copanlisib+Venetoclax`,
             df$`BGB-11417+Duvelisib`,
@@ -19,25 +24,18 @@ colnames(df2) = c("BGB-11417+Copanlisib", "Copanlisib+Venetoclax",
                   "BGB-11417+Duvelisib", "Venetoclax+ZSTK474")
 rownames(df2) = rownames(df)
 
-setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023")
-pflow = readRDS("new_pflow_data_55.rds")
+setwd("/data folder path") # insert your data path here
+
+# This is the same data with "baseline_pflow_all_cleaned.rds" in "1_1_pflow_lasso_LOOCV.R"
+# but with the pre-possessing in that script finished
+
+pflow = readRDS("new_pflow_data_55.rds") 
 rownames(pflow) = pflow$ids
 length(intersect(rownames(pflow), rownames(df2)))
 common_ids = intersect(rownames(pflow), rownames(df2))
 pflow = pflow[common_ids,]
 
-
-vali_set = read.csv2("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023/validation/pflow_jenifer_brown.csv")
-cols = c(2,4,6,8,10,12,14,16,18,20,22,24)
-rownames(vali_set) = vali_set$X
-vali_set = vali_set[, cols]
-vali_set = vali_set[1:32, ] # remove the unrelated protein according to Yanping's answer
-
-vali_set = t(vali_set)
-vali_set = vali_set[,2:ncol(vali_set)]
-is.element(colnames(vali_set), colnames(pflow))
-vali_set = vali_set[,c(1,3:31)]
-is.element(colnames(vali_set), colnames(pflow))
+vali_set = readRDS("pflow_jenifer_brown.rds") 
 
 dss_vali = read.csv2("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2024/DSS_JBrown_common_samples_new.csv")
 dss_vali = t(dss_vali)

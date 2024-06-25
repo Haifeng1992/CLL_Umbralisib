@@ -31,6 +31,7 @@ initialization <- function() {
   library("animation")
   library("MASS")
   library("ggplot2")
+  library("ggpubr")
   library("reshape2")
   library("ggfortify")
   library("gridExtra")

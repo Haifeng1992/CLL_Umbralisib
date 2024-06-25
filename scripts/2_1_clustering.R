@@ -3,7 +3,7 @@ library("clValid")
 library(ggfortify)
 library(FeatureImpCluster)
 library(flexclust)
-source("scripts/my_function.r")
+source("/scripts/my_function.r")
 initialization() #load required packages
 
 # Due to the ethical policy, the training data is not shared here,
@@ -12,7 +12,7 @@ initialization() #load required packages
 # The "df" object is data frame with 31 samples as rows, including 10 responders, 20 non-responders, and 1 sample with no clear information; 
 # and it has 182 colums, including the treatment response as the 1st column, and the DSS of 181 drug/drug combinations as the rest columns.
 
-setwd("/Users/xuhaifeng/Documents/PhD_project_4/projects_2024/dss_2024/data")
+setwd("/data folder path") # insert your data path here
 data = readRDS("dss_cleaned_data.rds")
 df = cbind(as.character(data[[2]]), data[[1]])
 
@@ -73,14 +73,11 @@ res.km_all <- kmeans(scale(non_res), 2)
 
 res.km <- kmeans(scale(selected_matrix), 2)
 res.km$cluster
-#setwd("/Users/xuhaifeng/Documents/PhD_project_4/results")
 #saveRDS(res.km, "clustering_results.rds")
 
 res.km_random <- kmeans(scale(non_res[,5:9]), 2)
 res.km_random$cluster
 res.km_random$cluster == res.km_all$cluster
-
-#pca_res <- prcomp(non_res[,5:9], scale. = TRUE)
 
 cluserting_results = res.km$cluster
 cluserting_results = as.character(cluserting_results)
