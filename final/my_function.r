@@ -3,8 +3,6 @@ my_zsore <- function(data_column) {
   return(data_column)
 }
 
-
-
 ## preselect gene expression explaining 50% variations over all samples
 low_expressed_gene_filter = function(log_data, percentage){
   var.x1 <- apply(t(log_data), 2, var)
@@ -18,19 +16,14 @@ low_expressed_gene_filter = function(log_data, percentage){
 
 initialization <- function() {
   library("glmnet")
-  #library("pcr")
   library("RColorBrewer")
   library("ComplexHeatmap")
   library("circlize")
   library("tidyverse")
-  #library("hrbrthemes")
   library("viridis")
   library("stats")
   library("caret")
   library("pROC")
-  #library("DMwR")
-  #library("PerfMeas")
-  #library("qpgraph")
   library("PRROC")
   library("e1071")
   library("ROCR")
@@ -39,12 +32,11 @@ initialization <- function() {
   library("MASS")
   library("ggplot2")
   library("reshape2")
-  library(caret)
-  library(ggfortify)
-  library(gridExtra)
+  library("ggfortify")
+  library("gridExtra")
   library("dplyr")
-  library("randomForest")
   library("edgeR")
   library("readxl")
   library("ggpubr")
+  library("smotefamily")
 }

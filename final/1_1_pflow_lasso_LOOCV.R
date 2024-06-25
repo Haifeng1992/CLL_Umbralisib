@@ -1,23 +1,19 @@
 ##### Run this script from here #####
-library(smotefamily)
-#setwd("/Users/xuhaifeng/Documents/PhD_project_1/scripts/")
-#source("my_function.r")
-setwd("final/1_1_pflow_lasso_LOOCV.R")
-source(".../CLL_Umbralisib/final/my_function.r")
+source("final/my_function.r")
 initialization() #load required packages
+
 setwd("/Users/xuhaifeng/Documents/PhD_project_4/data/data_2023")
 pflow = readRDS("baseline_pflow_all_cleaned.rds")
 pflow[,3:ncol(pflow)] = apply(pflow[,3:ncol(pflow)], 2, as.numeric)
 
-## classify CR into PR together as responder
+# Classify CR and PR together as responders
 pflow$labels[pflow$labels == "responder (CR)"] = "responder"
 
-# add new responder based on literature
+# Add new responders based on literature
 new_res = c("PHA0210", "NYA0206")
 res = pflow[pflow$labels == "responder",]
 old_res = res$ids
 res = c(old_res, new_res)
-#res = old_res
 res = pflow[is.element(pflow$ids, res),]
 res$labels = "responder"
 
@@ -27,7 +23,7 @@ non_res$labels = "non_responder"
 non_res = non_res[non_res$ids!="NYA0204",] #remove the sample with no clear info
 pflow = rbind(res, non_res)
 
-###LOOCV
+### Leave-one-out cross-validation
 # initialization of the nested cross-validation
 results = matrix(0,nrow(pflow), 1)
 ProteinList = list()
@@ -55,6 +51,7 @@ for (i in 1:nrow(pflow)) {
   y.test[y.test == "responder"] = 1
   y.test = as.numeric(y.test)
   
+  # This part if for potential oversampling tests, thus commented
   #temp = SMOTE(x.train, target = y.train, K = 5, dup_size = 0)
   #temp = temp$data
   
@@ -73,12 +70,12 @@ for (i in 1:nrow(pflow)) {
   cv_output <- cv.glmnet(x = as.matrix(x.train), y = as.factor(y.train), nfolds = 3,
                          alpha = 1, family = "binomial", type.measure="mse")
   #plot(cv_output)
-  #coef(cv_output)
+
   model= glmnet(x = as.matrix(x.train), y = as.matrix(as.factor(y.train)), 
                 alpha = 1, family = "binomial", type.measure="mse")
                 #, lambda=cv_output$lambda.min)
   
-  #get the common genes
+  #get the selected proteins
   betaGene = model$beta[,model$lambda==cv_output$lambda.min]
   betaGene = betaGene[betaGene != 0]
   betaGene = as.data.frame(betaGene)
@@ -86,16 +83,9 @@ for (i in 1:nrow(pflow)) {
   ProteinList[[i]] = rownames(betaGene)
   
   result = predict(model, as.matrix(x.test), type = "response", s=cv_output$lambda.min)
-  label_result = predict(model, as.matrix(x.test),type = "class",  s=cv_output$lambda.min)
   result = as.numeric(result)
   
-  model = svm(x.train, y.train, probability = TRUE)
-  sam_result = predict(model,x.test, probability = TRUE)
-  sam_result = attr(sam_result,"probabilities")
-  sam_result = sam_result[1]
-  
   results[i,1] = result
-
 }
 
 ProteinList = unlist(ProteinList)
@@ -178,8 +168,8 @@ TrueData = cbind.data.frame(
   pr_label, results, results
 )
 
-#create yogiroc2 object
-
+# Create yogiroc2 object
+# This is an edited version of yogiroc: https://github.com/jweile/yogiroc
 
 source("~/Documents/PhD_project_4/scripts/temp_yogi.r")
 predictions_tg = as.matrix(results)
