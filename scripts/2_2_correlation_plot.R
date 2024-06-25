@@ -25,6 +25,7 @@ colnames(df2) = c("BGB-11417+Copanlisib", "Copanlisib+Venetoclax",
 rownames(df2) = rownames(df)
 
 ## read pFLOW data, both training cohort and test cohort
+## "new_pflow_data_55.rds" is the same data used in 1_1 but with all pre-processing done
 setwd("/data folder path") # insert your data path here
 pflow = readRDS("new_pflow_data_55.rds")
 rownames(pflow) = pflow$ids
