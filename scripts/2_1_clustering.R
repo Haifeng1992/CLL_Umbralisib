@@ -75,7 +75,7 @@ res.km <- kmeans(scale(selected_matrix), 2)
 res.km$cluster
 #saveRDS(res.km, "clustering_results.rds")
 
-res.km_random <- kmeans(scale(non_res[,5:9]), 2)
+res.km_random <- kmeans(scale(non_res[,5:8]), 2)
 res.km_random$cluster
 res.km_random$cluster == res.km_all$cluster
 
