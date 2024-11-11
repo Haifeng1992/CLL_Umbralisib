@@ -75,10 +75,18 @@ res.km <- kmeans(scale(selected_matrix), 2)
 res.km$cluster
 #saveRDS(res.km, "clustering_results.rds")
 
-res.km_random <- kmeans(scale(non_res[,5:8]), 2)
+#res.km_random <- kmeans(scale(non_res[,5:8]), 2)
+#colnames(non_res[,5:8])
+#res.km_random$cluster
+#res.km_random$cluster == res.km_all$cluster
+
+random_id = sample(1:181, 4)
+res.km_random <- kmeans(scale(non_res[,random_id]), 2)
+colnames(non_res[,random_id])
 res.km_random$cluster
 res.km_random$cluster == res.km_all$cluster
 
+####
 cluserting_results = res.km$cluster
 cluserting_results = as.character(cluserting_results)
 cluserting_results
