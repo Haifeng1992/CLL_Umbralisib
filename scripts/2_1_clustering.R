@@ -1,8 +1,9 @@
 # initialization 
 library("clValid")
-library(ggfortify)
-library(FeatureImpCluster)
-library(flexclust)
+library("ggfortify")
+library("FeatureImpCluster")
+library("flexclust")
+library("ComplexHeatmap")
 source("/scripts/my_function.r")
 initialization() #load required packages
 

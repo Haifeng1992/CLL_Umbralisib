@@ -13,12 +13,14 @@ pflow[,3:ncol(pflow)] = apply(pflow[,3:ncol(pflow)], 2, as.numeric)
 
 ## Preprocessing. This is kept for potential detail-checking
 # classify CR into PR together as responder
+## these CR were originally labelled as CR but the 
+## final clinical report showed they are PR
+## "PHA0210" and "NYA0206" are found as responder in literature
 pflow$labels[pflow$labels == "responder (CR)"] = "responder"
 new_res = c("PHA0210", "NYA0206")
 res = pflow[pflow$labels == "responder",]
 old_res = res$ids
 res = c(old_res, new_res)
-#res = old_res
 res = pflow[is.element(pflow$ids, res),]
 res$labels = "responder"
 
