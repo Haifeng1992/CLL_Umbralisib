@@ -76,11 +76,7 @@ res.km <- kmeans(scale(selected_matrix), 2)
 res.km$cluster
 #saveRDS(res.km, "clustering_results.rds")
 
-#res.km_random <- kmeans(scale(non_res[,5:8]), 2)
-#colnames(non_res[,5:8])
-#res.km_random$cluster
-#res.km_random$cluster == res.km_all$cluster
-
+# repeat this for 5 times to make sure it is not just chance
 random_id = sample(1:181, 4)
 res.km_random <- kmeans(scale(non_res[,random_id]), 2)
 colnames(non_res[,random_id])
