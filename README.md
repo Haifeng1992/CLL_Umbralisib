@@ -10,6 +10,9 @@ This is for the predictive modelling of treatment response of the drug umbralisi
 **1_2_pflow_validation.R**: 
 This is for testing the selected proteins in 1_1 on an independent test set. Given that the test set only contains one class, Wilconxon's test was used to examine the predictions.
 
+**1_3_CR_PR_classification.R**: 
+This is for testing if the selected proteins 1_1 can also be used for PR-CR classification. 
+
 **2_1_clustering.R**: 
 This is an unsupervised clustering within the non-responders using the k-means algorithm and DSS data, in order to explore potential treatment options for those who are likely not to respond to umbralisib.
 
